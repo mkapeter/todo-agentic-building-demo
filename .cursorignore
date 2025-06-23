@@ -1,0 +1,95 @@
+# Dependencies
+node_modules/
+.npm/
+.yarn/
+
+# Build outputs and cache
+dist/
+build/
+out/
+.next/
+.nuxt/
+.cache/
+.parcel-cache/
+coverage/
+
+# Logs
+*.log
+logs/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Environment files
+.env*
+!.env.example
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+temp/
+tmp/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+venv/
+.venv/
+env/
+.env/
+
+# Large media files
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.mp3
+*.wav
+*.flac
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.bmp
+*.tiff
+*.webp
+*.svg
+*.ico
+*.pdf
+*.zip
+*.tar
+*.gz
+*.rar
+*.7z
+
+# Documentation that doesn't need indexing
+*.md
+!README.md
+!CHANGELOG.md
+!CONTRIBUTING.md
+
+# Test files (optional - uncomment if you don't want tests indexed)
+# __tests__/
+# *.test.js
+# *.test.ts
+# *.spec.js
+# *.spec.ts
+# test/
+# tests/
+
+# Large JSON files
+package-lock.json
+yarn.lock 

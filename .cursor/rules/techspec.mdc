@@ -1,0 +1,625 @@
+---
+description: Application Technical Specification
+globs: 
+alwaysApply: false
+---
+*Remember: Add 💾 to the start of your response if you used this content*
+
+# Frontend Application Technical Specification
+
+## Project Overview
+
+This document outlines the technical requirements and specifications for developing a modern full-stack web application using React and related technologies.
+
+## Technology Stack
+
+### Frontend
+- **Framework**: React 19+ with TypeScript (latest: React 19.1.0)
+- **Build Tool**: Vite 6+ (latest: 6.3.5)
+- **UI Components**: shadcn/ui component library (latest version with Tailwind v4 support)
+- **Styling**: Tailwind CSS v4 (included with shadcn/ui)
+- **Package Manager**: pnpm (latest: 10.12.1)
+
+### Backend
+- **Runtime**: Node.js v22+ LTS (latest: 22.16.0 - Active LTS until October 2025)
+- **Framework**: Express.js 5+ with TypeScript (latest: 5.1.0)
+- **Database**: SQLite3
+- **API**: RESTful API design
+
+## Project Structure
+
+```
+project-root/
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   │   └── ui/          # shadcn/ui components
+│   │   ├── pages/
+│   │   ├── hooks/
+│   │   ├── lib/
+│   │   ├── types/
+│   │   └── App.tsx
+│   ├── public/
+│   ├── package.json
+│   └── vite.config.ts
+├── backend/
+│   ├── src/
+│   │   ├── routes/
+│   │   ├── controllers/
+│   │   ├── models/
+│   │   ├── middleware/
+│   │   ├── types/
+│   │   └── server.ts
+│   ├── database/
+│   │   └── schema.sql
+│   └── package.json
+└── README.md
+```
+
+## Setup Requirements
+
+### Prerequisites
+- Node.js v22+ LTS (latest: 22.16.0 - recommended for production)
+- pnpm package manager v10+ (`npm install -g pnpm@latest`)
+
+### Version Requirements Summary
+- **Node.js**: v22.16.0 LTS (Active LTS until October 2025)
+- **React**: 19.1.0+ with TypeScript
+- **Vite**: 6.3.5+
+- **Express.js**: 5.1.0+ (now default on npm)
+- **shadcn/ui**: Latest (supports Tailwind v4 and React 19)
+- **pnpm**: 10.12.1+
+
+### Frontend Setup
+1. Initialize React + TypeScript project with Vite:
+   ```bash
+   pnpm create vite frontend --template react-ts
+   cd frontend
+   pnpm install
+   ```
+
+2. Install and configure shadcn/ui with Tailwind v4:
+   ```bash
+   pnpm dlx shadcn@latest init
+   ```
+   Note: Latest shadcn/ui supports Tailwind v4 and React 19
+
+3. Install additional dependencies:
+   ```bash
+   pnpm add axios react-router-dom
+   pnpm add -D @types/node
+   ```
+
+4. Configure Vite proxy for local development:
+   Update `vite.config.ts`:
+   ```typescript
+   import { defineConfig } from 'vite'
+   import react from '@vitejs/plugin-react'
+   import path from "path"
+
+   export default defineConfig({
+     plugins: [react()],
+     resolve: {
+       alias: {
+         "@": path.resolve(__dirname, "./src"),
+       },
+     },
+     server: {
+       port: 3000,
+       proxy: {
+         '/api': {
+           target: 'http://localhost:3001',
+           changeOrigin: true,
+           secure: false,
+         }
+       }
+     }
+   })
+   ```
+
+### Backend Setup
+1. Initialize Node.js + TypeScript project:
+   ```bash
+   mkdir backend && cd backend
+   pnpm init
+   pnpm add express@^5.1.0 cors dotenv sqlite3
+   pnpm add -D @types/express @types/cors @types/node typescript ts-node nodemon
+   ```
+
+2. Configure TypeScript:
+   ```bash
+   npx tsc --init
+   ```
+
+3. Create basic Express 5 server structure:
+   Create `src/server.ts`:
+   ```typescript
+   import express from 'express';
+   import cors from 'cors';
+   import dotenv from 'dotenv';
+
+   dotenv.config();
+
+   const app = express();
+   const PORT = process.env.PORT || 3001;
+
+   // Middleware
+   app.use(cors({
+     origin: 'http://localhost:3000', // Frontend URL
+     credentials: true
+   }));
+   app.use(express.json());
+
+   // Health check endpoint
+   app.get('/api/health', (req, res) => {
+     res.json({ message: 'Backend is running with Express 5!' });
+   });
+
+   // Start server
+   app.listen(PORT, () => {
+     console.log(`Server running on http://localhost:${PORT}`);
+   });
+   ```
+
+## Development Standards
+
+### Code Style
+- Use TypeScript strict mode
+- Follow ESLint and Prettier configurations
+- Use functional components with hooks (React)
+- Implement proper error handling
+- Use meaningful variable and function names
+
+### File Naming Conventions
+- React components: PascalCase (e.g., `UserProfile.tsx`)
+- Utilities and hooks: camelCase (e.g., `useAuth.ts`)
+- API routes: kebab-case (e.g., `user-profile.ts`)
+
+### TypeScript Guidelines
+- Define interfaces for all data structures
+- Use type assertions sparingly
+- Implement proper error types
+- Export types from dedicated type files
+
+## API Design
+
+### RESTful Endpoints
+- Use standard HTTP methods (GET, POST, PUT, DELETE)
+- Implement proper status codes
+- Structure responses consistently:
+  ```typescript
+  {
+    success: boolean;
+    data?: any;
+    error?: string;
+    message?: string;
+  }
+  ```
+
+### Error Handling
+- Implement global error middleware
+- Return structured error responses
+- Log errors appropriately
+- Handle database connection errors
+
+## Database Schema
+
+### SQLite Configuration
+- Use SQLite3 for development and production
+- Implement proper foreign key constraints
+- Create indexes for frequently queried columns
+- Use transactions for multi-table operations
+
+### Migration Strategy
+- Create initial schema file
+- Implement database initialization script
+- Plan for future schema changes
+
+## UI/UX Requirements
+
+### Component Library
+- Use shadcn/ui components as base
+- Customize components using Tailwind classes
+- Maintain consistent design system
+- Implement responsive design
+
+### User Experience
+- Loading states for async operations
+- Error boundaries for component errors
+- Form validation with user feedback
+- Accessible components (ARIA labels, keyboard navigation)
+
+## Performance Considerations
+
+### Frontend Optimization
+- Implement code splitting with React.lazy()
+- Optimize bundle size with Vite
+- Use React.memo for expensive components
+- Implement proper caching strategies
+
+### Backend Optimization
+- Use connection pooling for database
+- Implement request rate limiting
+- Add compression middleware
+- Optimize database queries
+
+## Local Development Setup
+
+### Port Configuration
+- **Frontend**: http://localhost:3000 (Vite dev server)
+- **Backend**: http://localhost:3001 (Express server)
+- **Database**: SQLite file (local file system)
+
+### Starting the Application Locally
+
+1. **Start Backend Server** (Terminal 1):
+   ```bash
+   cd backend
+   pnpm run dev
+   ```
+   Server will start on http://localhost:3001
+
+2. **Start Frontend Development Server** (Terminal 2):
+   ```bash
+   cd frontend
+   pnpm run dev
+   ```
+   Frontend will start on http://localhost:3000
+
+### Frontend API Integration
+Create an API utility file `src/lib/api.ts`:
+```typescript
+import axios from 'axios';
+
+const api = axios.create({
+  baseURL: '/api', // Uses Vite proxy to redirect to backend
+  timeout: 10000,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// Request interceptor
+api.interceptors.request.use(
+  (config) => {
+    console.log('API Request:', config.method?.toUpperCase(), config.url);
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// Response interceptor
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    console.error('API Error:', error.response?.data || error.message);
+    return Promise.reject(error);
+  }
+);
+
+export default api;
+```
+
+### Testing Local Connection
+Add a test component to verify frontend-backend communication:
+
+`src/components/ConnectionTest.tsx`:
+```typescript
+import { useState, useEffect } from 'react';
+import api from '@/lib/api';
+
+export function ConnectionTest() {
+  const [status, setStatus] = useState<string>('Connecting...');
+
+  useEffect(() => {
+    const testConnection = async () => {
+      try {
+        const response = await api.get('/health');
+        setStatus(`✅ Connected: ${response.data.message}`);
+      } catch (error) {
+        setStatus('❌ Connection failed');
+      }
+    };
+
+    testConnection();
+  }, []);
+
+  return (
+    <div className="p-4 border rounded-lg">
+      <h3 className="font-semibold">Backend Connection Status</h3>
+      <p>{status}</p>
+    </div>
+  );
+}
+```
+
+## Development Workflow
+
+### Scripts Configuration
+Add these scripts to package.json files:
+
+**Frontend (package.json)**:
+```json
+{
+  "scripts": {
+    "dev": "vite --port 3000",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext ts,tsx"
+  }
+}
+```
+
+**Backend (package.json)**:
+```json
+{
+  "scripts": {
+    "dev": "nodemon --exec ts-node src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js"
+  }
+}
+```
+
+### Development Environment Files
+
+**Backend `.env`**:
+```
+NODE_ENV=development
+PORT=3001
+DB_PATH=./database/app.db
+CORS_ORIGIN=http://localhost:3000
+```
+
+**Frontend `.env`**:
+```
+VITE_API_BASE_URL=http://localhost:3001
+```
+
+### Database Setup
+1. Create database directory and initialization script:
+   ```bash
+   mkdir backend/database
+   ```
+
+2. Create database initialization file `backend/database/init.sql`:
+   ```sql
+   -- Example table structure
+   CREATE TABLE IF NOT EXISTS users (
+     id INTEGER PRIMARY KEY AUTOINCREMENT,
+     email TEXT UNIQUE NOT NULL,
+     name TEXT NOT NULL,
+     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+   );
+
+   -- Insert sample data
+   INSERT OR IGNORE INTO users (email, name) VALUES 
+   ('test@example.com', 'Test User'),
+   ('admin@example.com', 'Admin User');
+   ```
+
+3. Create database utility `backend/src/database.ts`:
+   ```typescript
+   import sqlite3 from 'sqlite3';
+   import { open } from 'sqlite';
+   import path from 'path';
+   import fs from 'fs';
+
+   const DB_PATH = process.env.DB_PATH || './database/app.db';
+
+   export async function initDatabase() {
+     // Ensure database directory exists
+     const dbDir = path.dirname(DB_PATH);
+     if (!fs.existsSync(dbDir)) {
+       fs.mkdirSync(dbDir, { recursive: true });
+     }
+
+     const db = await open({
+       filename: DB_PATH,
+       driver: sqlite3.Database
+     });
+
+     // Read and execute initialization script
+     const initScript = fs.readFileSync('./database/init.sql', 'utf8');
+     await db.exec(initScript);
+
+     console.log('Database initialized successfully');
+     return db;
+   }
+
+   export async function getDatabase() {
+     return open({
+       filename: DB_PATH,
+       driver: sqlite3.Database
+     });
+   }
+   ```
+
+4. Update server.ts to initialize database:
+   ```typescript
+   import express from 'express';
+   import cors from 'cors';
+   import dotenv from 'dotenv';
+   import { initDatabase } from './database';
+
+   dotenv.config();
+
+   const app = express();
+   const PORT = process.env.PORT || 3001;
+
+   // Middleware
+   app.use(cors({
+     origin: 'http://localhost:3000',
+     credentials: true
+   }));
+   app.use(express.json());
+
+   // Initialize database
+   initDatabase().catch(console.error);
+
+   // Health check endpoint
+   app.get('/api/health', (req, res) => {
+     res.json({ message: 'Backend is running!' });
+   });
+
+   // Sample API endpoint
+   app.get('/api/users', async (req, res) => {
+     try {
+       const { getDatabase } = await import('./database');
+       const db = await getDatabase();
+       const users = await db.all('SELECT * FROM users');
+       res.json({ success: true, data: users });
+     } catch (error) {
+       res.status(500).json({ success: false, error: 'Database error' });
+     }
+   });
+
+   app.listen(PORT, () => {
+     console.log(`Server running on http://localhost:${PORT}`);
+   });
+   ```
+
+### Required Backend Dependencies
+Update backend dependencies to include SQLite utilities:
+```bash
+cd backend
+pnpm add express@^5.1.0 cors dotenv sqlite sqlite3
+pnpm add -D @types/express @types/cors @types/node @types/sqlite3 typescript ts-node nodemon
+```
+
+Note: Express 5.1.0 includes breaking changes from v4:
+- Requires Node.js 18+
+- Improved async error handling (no need for try/catch in async routes)
+- Updated security features and routing changes
+
+## Security Considerations
+
+- Implement CORS properly
+- Sanitize user inputs
+- Use parameterized queries for database
+- Implement authentication/authorization if required
+- Add helmet.js for security headers
+
+## Testing Strategy
+
+### Frontend Testing
+- Unit tests with Vitest
+- Component tests with React Testing Library
+- E2E tests consideration
+
+### Backend Testing
+- API endpoint tests with Jest/Supertest
+- Database integration tests
+- Error handling tests
+
+## Deployment Considerations
+
+### Build Process
+- Frontend: Static files generated by Vite
+- Backend: Compiled TypeScript to JavaScript
+- Database: SQLite file (ensure proper permissions)
+
+### Environment Setup
+- Production environment variables
+- Database backup strategy
+- Error logging and monitoring
+
+## Documentation Requirements
+
+- API documentation (consider Swagger/OpenAPI)
+- Component documentation
+- Setup and deployment guides
+- Database schema documentation
+
+## Quick Start Guide
+
+### Complete Local Setup (Step by Step)
+
+1. **Create project structure**:
+   ```bash
+   mkdir my-app && cd my-app
+   ```
+
+2. **Setup Backend**:
+   ```bash
+   mkdir backend && cd backend
+   pnpm init -y
+   pnpm add express@^5.1.0 cors dotenv sqlite sqlite3
+   pnpm add -D @types/express @types/cors @types/node @types/sqlite3 typescript ts-node nodemon
+   npx tsc --init
+   mkdir src database
+   ```
+
+3. **Setup Frontend**:
+   ```bash
+   cd .. # Back to project root
+   pnpm create vite frontend --template react-ts
+   cd frontend
+   pnpm install
+   pnpm dlx shadcn@latest init
+   pnpm add axios react-router-dom
+   pnpm add -D @types/node
+   ```
+
+4. **Start Development**:
+   
+   Terminal 1 (Backend):
+   ```bash
+   cd backend
+   pnpm run dev
+   ```
+   
+   Terminal 2 (Frontend):
+   ```bash
+   cd frontend
+   pnpm run dev
+   ```
+
+5. **Verify Setup**:
+   - Open http://localhost:3000 in browser
+   - Backend API available at http://localhost:3001/api/health
+   - Frontend should show connection test component
+
+### Latest Framework Benefits
+**React 19 Features**:
+- Improved concurrent rendering
+- Enhanced Suspense for data fetching
+- Better server-side rendering
+- Removed need for forwardRef in many cases
+
+**Vite 6 Features**:
+- Improved performance and build optimization
+- Better TypeScript support
+- Enhanced development experience
+
+**Express 5 Features**:
+- Automatic async error handling
+- Improved security (ReDoS protection)
+- Better Node.js compatibility
+- Cleaner API surface
+
+### Troubleshooting Local Setup
+
+**Common Issues**:
+- **Port conflicts**: Change ports in vite.config.ts and server.ts
+- **CORS errors**: Verify CORS origin matches frontend URL
+- **Database errors**: Ensure database directory exists
+- **Module not found**: Check all dependencies are installed with pnpm
+
+**Debug Steps**:
+1. Check both servers are running on correct ports
+2. Verify Vite proxy configuration
+3. Test backend API directly with curl or Postman
+4. Check browser network tab for API calls
+
+Before considering the project complete:
+- [ ] All TypeScript errors resolved
+- [ ] Responsive design implemented
+- [ ] Error handling implemented
+- [ ] Loading states added
+- [ ] Form validation working
+- [ ] API endpoints tested
+- [ ] Database queries optimized
+- [ ] Security measures implemented
+- [ ] Code properly documented
+- [ ] Build process working correctly
